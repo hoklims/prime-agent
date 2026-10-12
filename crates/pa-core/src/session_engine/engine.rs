@@ -236,6 +236,9 @@ pub async fn create_session(mut config: SessionEngineConfig) -> anyhow::Result<S
     // factory host bridge's preflight facts (the daemon `allowedModels`
     // pin), like the request-timing snapshot above.
     let factory_allowed_models = settings.get_allowed_models();
+    // Captured before `settings` moves into the resource loader: the
+    // settings `shellPath` the kernel's `bash()` shell resolves from.
+    let kernel_shell_path = settings.settings().shell_path.clone();
     let (mcp_skill_overrides, mcp_generic_servers, built_manager) =
         mcp_gating(&settings, config.agent_dir.clone()).await?;
     let mcp_manager = config
@@ -424,6 +427,7 @@ pub async fn create_session(mut config: SessionEngineConfig) -> anyhow::Result<S
         preimport_filter,
         cwd.clone(),
         &config.agent_dir,
+        kernel_shell_path.as_deref(),
         session_artifact_dir,
         on_restore,
         config.on_background_work_settled.clone(),

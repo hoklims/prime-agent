@@ -1309,6 +1309,29 @@ pub fn provisioner_for_path(
 mod tests {
     use super::*;
 
+    /// A session kernel carries the `bash()` shell resolved from the settings `shellPath`
+    /// (TS `ipython.ts`: `resolveKernelBashShell(shellPath)`), so `PRIME_AGENT_BASH_SHELL`
+    /// reaches the kernel. Without it every Windows `bash()` call raises.
+    #[test]
+    fn session_kernel_provisioner_carries_the_settings_shell_path() {
+        let shell = std::env::temp_dir().join("custom-shell").join("bash.exe");
+        let provisioner = crate::session_engine::runtime_wiring::kernel_provisioner(
+            "session".to_string(),
+            HostRequestHandlers::new(),
+            Vec::new(),
+            Arc::new(|_| true),
+            std::env::temp_dir(),
+            Path::new("agent"),
+            shell.to_str(),
+            /*snapshot_dir*/ None,
+            /*on_restore*/ None,
+            /*on_background_work_settled*/ None,
+            /*on_unavailable_skills*/ None,
+            /*on_bootstrap_result*/ None,
+        );
+        assert_eq!(provisioner.inner.options.shell_path, Some(shell));
+    }
+
     #[test]
     fn a_spent_stop_arm_releases_only_its_own_boot() {
         let provisioner = IpythonKernelProvisioner::new(

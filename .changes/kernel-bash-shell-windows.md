@@ -1,0 +1,1 @@
+- The Python kernel's `bash()` works on native Windows again: sessions pass the resolved shell (`shellPath` from settings, else Git Bash in its default location) to the kernel, as the TypeScript version does.
